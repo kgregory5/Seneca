@@ -11,10 +11,12 @@ if(isset($_POST['update'])){
 	$rate = $_POST['rate'];
 	$com = $_POST['work'];
 
+	pg_query("SELECT updateemployee('$user','$fname','$lname',NULL,'$rate','$com')");
+
 	/*$psql = "SELECT updateemployee($eID,$fname,$lname,$phn,$rate,$com)";
 	$result = pg_prepare($db,"query", $psql);
 	$result=pg_execute($db,"query",array('$eID','$fname','$lname','$phn','$rate','$com'));*/
-	
+
             /*':user' => $user,
             ':pass' => $pass,
             ':fname' => $fname,
@@ -27,6 +29,6 @@ if(isset($_POST['update'])){
 	//$comm = $_POST['work'];
 
 }
-//header("Location:employees.php");
- //       exit;
+header("Location:employees.php");
+       exit;
 ?>

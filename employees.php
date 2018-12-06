@@ -371,6 +371,7 @@ function closeForm() {
                                         $result = pg_fetch_all($psql);
                                         foreach($result as $array) {
                                           $user = $array['pk_user'];
+                                          $eID = $array['pk_employee'];
                                           echo '<tr>';
                                           echo '<td>' . $array['pk_user'].'</td>';
                                           echo '<td>' . $array['username'].'</td>';
@@ -380,7 +381,8 @@ function closeForm() {
                                           echo '<td>' . $array['ephone'].'</td>';
                                           echo '<td>' . $array['rate'].'</td>';
                                           echo '<td>' . $array['iscommission'].'</td>';
-                                          echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info</a>".' </td></tr>';
+                                          //echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info</a>".' </td></tr>';
+                                          echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info </a><a href=edelete.php?delete=" . $eID . ">Delete</a>".' </td></tr>';
                                           //echo '</tr>';
                                         }
                                       } elseif(isset($full[0]) and !empty($full[0])) {
@@ -389,6 +391,7 @@ function closeForm() {
                                         $result = pg_fetch_all($psql);
                                         foreach($result as $array) {
                                           $user = $array['pk_user'];
+                                          $eID = $array['pk_employee'];
                                           echo '<tr>';
                                           echo '<td>' . $array['pk_user'].'</td>';
                                           echo '<td>' . $array['username'].'</td>';
@@ -398,14 +401,15 @@ function closeForm() {
                                           echo '<td>' . $array['ephone'].'</td>';
                                           echo '<td>' . $array['rate'].'</td>';
                                           echo '<td>' . $array['iscommission'].'</td>';
-                                          echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info</a>".' </td></tr>';
-                                          //echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info </a><a href=edelete.php?delete=" . $user . ">Delete</a>".' </td></tr>';
+                                          //echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info</a>".' </td></tr>';
+                                          echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info </a><a href=edelete.php?delete=" . $eID . ">Delete</a>".' </td></tr>';
                                         }
                                       } elseif(empty($full[0]) and isset($full[0])) {
                                           $psql = pg_query("SELECT * FROM employeeview");
                                         $result = pg_fetch_all($psql);
                                         foreach($result as $array) {
                                           $user = $array['pk_user'];
+                                          $eID = $array['pk_employee'];
                                           echo '<tr>';
                                           echo '<td>' . $array['pk_user'].'</td>';
                                           echo '<td>' . $array['username'].'</td>';
@@ -415,7 +419,8 @@ function closeForm() {
                                           echo '<td>' . $array['ephone'].'</td>';
                                           echo '<td>' . $array['rate'].'</td>';
                                           echo '<td>' . $array['iscommission'].'</td>';
-                                          echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info</a>".' </td></tr>';
+                                          //echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info</a>".' </td></tr>';
+                                          echo '<td>' . "<a href=employeeinfo.php?info1=" . $user . ">Info </a><a href=edelete.php?delete=" . $eID . ">Delete</a>".' </td></tr>';
                                         }
                                       } /*elseif(!isset($eID)) {
                                         //unset($eID);
@@ -468,7 +473,7 @@ function closeForm() {
                               <input type="text" placeholder="Enter Last Name" name="last" style="color:black" required>
 
                               <label for="pNo" style="color:black"><b>Phone No.</b></label>
-                              <input type="text{}" placeholder="Enter Phone Number" name="phone" style="color:black" required>
+                              <input type="text" placeholder="Enter Phone Number" name="phone" style="color:black" required>
 
                               <!--<label for="pay" style="color:black"><b>Pay Rate</b></label>
                               <input type="text" placeholder="Enter Pay" name="rate" style="color:black" required>-->

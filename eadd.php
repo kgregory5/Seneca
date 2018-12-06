@@ -7,11 +7,12 @@ if(isset($_POST['insert'])){
 	$pass = $_POST['psw'];
 	$fname = $_POST['first'];
 	$lname = $_POST['last'];
-	$phn = $_POST['phone'];
+	$phn = "{". $_POST['phone']. "}";
+	//$phn = $_POST['phone'];
 	//$phn = str_split($pho,1);
 	$rate = 0.3;
 	$com = 't';
-	translate('$phn', '[]', '{}');
+	//translate('$phn', '[]', '{}');
 
 	/*$psql = "SELECT addemployee($user,$pass,$fname,$lname,$phn,$rate,$com)";
 	$result = pg_prepare($db,"query",$psql);
@@ -33,6 +34,6 @@ if(isset($_POST['insert'])){
 	//$comm = $_POST['work'];
 
 }
-//header("Location:employees.php");
- //       exit;
+header("Location:employees.php");
+        exit;
 ?>
