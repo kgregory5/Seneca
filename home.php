@@ -217,8 +217,8 @@ require_once('connect.php');
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 <span class="glyphicon glyphicon-log-in"></span> Login
             </a>
-            <ul class="dropdown-menu" style="background-color: #000 !important;">
-                <form action='home.php' method='POST' style='padding: 4px 5px 0px 5px;'>
+            <ul class="dropdown-menu" style="background-color: #f4511e !important;">
+                <form action='login.php' method='POST' style='padding: 4px 5px 0px 5px;'>
                     <div class="input-group">
                             <span class="input-group-addon" style="color: #f4511e !important; border-radius: 0 !important;"><i class="glyphicon glyphicon-user"></i></span> 
                             <input type="text" class="form-control" style="color: #f4511e !important; border-radius: 0 !important;" name="username" placeholder='Username'>
@@ -239,40 +239,6 @@ require_once('connect.php');
     </div>
   </div>
 </nav>
-
-
-<?php
-if(isset($_POST['username']) && ($_POST['password']) &&
-    !empty($_POST['username']) && !empty($_POST['password'])) {
-        
-    $postedUsername = htmlspecialchars(trim($_POST['username']));
-    $postedPassword = htmlspecialchars(trim($_POST['password']));
-
-    $sql = "SELECT * FROM user WHERE username='$postedUsername' AND password='$postedPassword'"; 
-    
-    $res = $db->query($sql); 
-    if($res->num_rows == 1) {
-        $row = $res->fetch_assoc();
-        $_SESSION['active'] = true;
-        $_SESSION['username'] = $row['username'];
-
-        session_regenerate_id();
-
-        header("Location: ./dashboard.php");
-        exit();
-    }
-    else {
-        //echo "<h3 style='text-align:center;'>User name or password did not match</h3>";
-        //header("Location: ./home.php");
-        //exit();
-    }
-}
-else {
-    //echo "<h3 style='text-align:center;'>Please login</h3>";
-    //header("Location: ./home.php");
-    //exit();
-}
-?>
 
 <div class="jumbotron text-center">
     <h1>Seneca</h1> 

@@ -3,16 +3,16 @@ session_start();
 require_once('connect.php');
 
 //Redirect if guest attempts to view page
-//if(!isset($_SESSION['active'])) {
-//    header("Location: ./home.php"); 
-//    exit();
-//}
+if(!isset($_SESSION['active'])) {
+    header("Location: https://cs.csubak.edu/~kgregory/4910/home.php"); 
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Seneca | Dashboard</title>
+  <title>Seneca | Job Board</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -40,7 +40,25 @@ require_once('connect.php');
       color: #303030;
       font-weight: 400;
       margin-bottom: 30px;
+  }
+  table {
+      border-collapse: collapse;
+      border-spacing: 0;
+      width 100%;
+      border: 5px solid #ddd
   }  
+  th {
+      text-align: left;
+      border: 1px solid #ddd;
+      padding: 8px;
+  }
+  td {
+      text-align: left;
+      border: 2px solid #ddd;
+      border-left-style: none;
+      border-right-style: none;
+      padding: 8px;
+  }
   .jumbotron {
       background-color: #f4511e;
       color: #fff;
@@ -71,16 +89,6 @@ require_once('connect.php');
       height: 100%;
       margin-bottom: 10px;
   }
-  .carousel-control.right, .carousel-control.left {
-      background-image: none;
-      color: #f4511e;
-  }
-  .carousel-indicators li {
-      border-color: #f4511e;
-  }
-  .carousel-indicators li.active {
-      background-color: #f4511e;
-  }
   .item h4 {
       font-size: 19px;
       line-height: 1.375em;
@@ -90,44 +98,6 @@ require_once('connect.php');
   }
   .item span {
       font-style: normal;
-  }
-  .panel {
-      border: 1px solid #f4511e; 
-      border-radius:0 !important;
-      transition: box-shadow 0.5s;
-  }
-  .panel:hover {
-      box-shadow: 5px 0px 40px rgba(0,0,0, .2);
-  }
-  .panel-footer .btn:hover {
-      border: 1px solid #f4511e;
-      background-color: #fff !important;
-      color: #f4511e;
-  }
-  .panel-heading {
-      color: #fff !important;
-      background-color: #f4511e !important;
-      padding: 25px;
-      border-bottom: 1px solid transparent;
-      border-top-left-radius: 0px;
-      border-top-right-radius: 0px;
-      border-bottom-left-radius: 0px;
-      border-bottom-right-radius: 0px;
-  }
-  .panel-footer {
-      background-color: white !important;
-  }
-  .panel-footer h3 {
-      font-size: 32px;
-  }
-  .panel-footer h4 {
-      color: #aaa;
-      font-size: 14px;
-  }
-  .panel-footer .btn {
-      margin: 15px 0;
-      background-color: #f4511e;
-      color: #fff;
   }
   .navbar {
       margin-bottom: 0;
@@ -211,16 +181,16 @@ require_once('connect.php');
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>                        
       </button>
-      <a class="navbar-brand" href="./dashboard.php">Dashboard</a>
+      <a class="navbar-brand" href="https://cs.csubak.edu/~kgregory/4910/dashboard.php">Dashboard</a>
       <!--<a class="navbar-brand" href="./settings.php">.$_SESSION['user_fname'].</a>-->
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="./jobboard.php">JOB BOARD</a></li>
-        <li><a href="#">EMPLOYEES</a></li>
-        <li><a href="#">CUSTOMERS</a></li>
+        <li><a href="https://cs.csubak.edu/~kgregory/4910/jobboard.php">JOB BOARD</a></li>
+        <li><a href="https://cs.csubak.edu/~aparker/Seneca/employees.php">EMPLOYEES</a></li>
+        <li><a href="https://cs.csubak.edu/~aparker/Seneca/customers.php">CUSTOMERS</a></li>
         <li><a href="#">JOB HISTORY</a></li>
-        <li><a href="./logout.php">LOGOUT</a></li>
+        <li><a href="https://cs.csubak.edu/~kgregory/4910/logout.php">LOGOUT</a></li>
       </ul>
     </div>
   </div>
@@ -228,20 +198,48 @@ require_once('connect.php');
 
 <!-- Container (Dashboard Section) -->
 <div id="dashboard" class="container-fluid">
+
+<div class="text-center" style="background-color: #f4511e; color: #fff; padding: 70px 25px; font-family: Montserrat, sans-serif;">
+    <h1>Job Board</h1> 
+</div>
   <div class="row">
-    <div class="col-lg-3 col-sm-12 bg-grey">
-        <ul>
-            <li>Draft</li>
-            <li>Open</li>
-            <li>In Progress</li>
-            <li>On Hold</li>
-            <li>Completed</li>
-            <li>Closed</li>
-            <li>Cancelled</li>
-        </ul>
-    </div>
-    <div class="col-lg-9 col-sm-12 bg-grey">
-        <p></p>
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="" style="overflow-x: auto;">
+            <table>
+                <tr class="bg-grey" style="border: 5px solid #ddd;">
+                    <th>Start</th>
+                    <th>Due</th>
+                    <th>Customer</th>
+                    <th>Address</th>
+                    <th>ZIP</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Techs</th>
+                    <th>Username</th>
+                    <th>Created</th>
+                </tr>
+<?php
+if(isset($_SESSION['active'])) { // if active user -> display job board
+    $result = pg_query($db, "SELECT * FROM jobboardview");
+
+    while($row = pg_fetch_row($result)) {
+        echo "<tr>";
+        echo "<td>".$row[1]."</td>";
+        echo "<td>".$row[2]."</td>";
+        echo "<td>".$row[3]."</td>";
+        echo "<td>".$row[4]."</td>";
+        echo "<td>".$row[5]."</td>";
+        echo "<td>".$row[6]."</td>";
+        echo "<td>".$row[7]."</td>";
+        echo "<td>".$row[8]."</td>";
+        echo "<td>".$row[9]."</td>";
+        echo "<td>".$row[10]."</td>";
+        echo "</tr>";
+    }
+}
+?>
+            </table>
+        </div>
     </div>
   </div>
 </div>

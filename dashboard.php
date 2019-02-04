@@ -3,10 +3,10 @@ session_start();
 require_once('connect.php');
 
 //Redirect if guest attempts to view page
-//if(!isset($_SESSION['active'])) {
-//    header("Location: ./home.php"); 
-//    exit();
-//}
+if(!isset($_SESSION['active'])) {
+    header("Location: https://cs.csubak.edu/~kgregory/4910/home.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -41,10 +41,19 @@ require_once('connect.php');
       font-weight: 400;
       margin-bottom: 30px;
   }  
+  input, select {
+      width: 100%;
+      padding: 10px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+  }
   .jumbotron {
       background-color: #f4511e;
       color: #fff;
-      padding: 100px 25px;
+      padding: 50px 25px;
       font-family: Montserrat, sans-serif;
   }
   .container-fluid {
@@ -71,16 +80,6 @@ require_once('connect.php');
       height: 100%;
       margin-bottom: 10px;
   }
-  .carousel-control.right, .carousel-control.left {
-      background-image: none;
-      color: #f4511e;
-  }
-  .carousel-indicators li {
-      border-color: #f4511e;
-  }
-  .carousel-indicators li.active {
-      background-color: #f4511e;
-  }
   .item h4 {
       font-size: 19px;
       line-height: 1.375em;
@@ -90,44 +89,6 @@ require_once('connect.php');
   }
   .item span {
       font-style: normal;
-  }
-  .panel {
-      border: 1px solid #f4511e; 
-      border-radius:0 !important;
-      transition: box-shadow 0.5s;
-  }
-  .panel:hover {
-      box-shadow: 5px 0px 40px rgba(0,0,0, .2);
-  }
-  .panel-footer .btn:hover {
-      border: 1px solid #f4511e;
-      background-color: #fff !important;
-      color: #f4511e;
-  }
-  .panel-heading {
-      color: #fff !important;
-      background-color: #f4511e !important;
-      padding: 25px;
-      border-bottom: 1px solid transparent;
-      border-top-left-radius: 0px;
-      border-top-right-radius: 0px;
-      border-bottom-left-radius: 0px;
-      border-bottom-right-radius: 0px;
-  }
-  .panel-footer {
-      background-color: white !important;
-  }
-  .panel-footer h3 {
-      font-size: 32px;
-  }
-  .panel-footer h4 {
-      color: #aaa;
-      font-size: 14px;
-  }
-  .panel-footer .btn {
-      margin: 15px 0;
-      background-color: #f4511e;
-      color: #fff;
   }
   .navbar {
       margin-bottom: 0;
@@ -164,6 +125,42 @@ require_once('connect.php');
       -webkit-animation-duration: 1s;
       visibility: visible;
   }
+  .form-popup {
+      display: none;
+      position: fixed;
+      top: 50px;
+      bottom: 10px;
+      left: 100px;
+      right: 100px;
+      z-index: 9;
+      overflow: scroll;
+  }
+  .form-header {
+      max-width: 100%;
+      padding: 15px;
+      background-color: #f1f1f1;;
+  }
+  .form-container {
+      max-width: 100%;
+      padding: 15px;
+      background-color: #f1f1f1;;
+  }
+  .form-container .btn {
+      width: 100%;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      border: none;
+      cursor: pointer;
+      color: white;
+      background-color: #4CAF50;
+      opacity: 0.8;
+  }
+  .form-container .cancel {
+      background-color: red;
+  }
+  .form-container .btn:hover, .open-button:hover {
+      opacity: 1;
+  }
   @keyframes slide {
     0% {
       opacity: 0;
@@ -195,6 +192,16 @@ require_once('connect.php');
     }
   }
   @media screen and (max-width: 480px) {
+    .form-popup {
+        display: none;        
+        padding: 16px 20px;
+        margin-bottom: 10px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+    }
     .logo {
         font-size: 150px;
     }
@@ -211,62 +218,170 @@ require_once('connect.php');
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>                        
       </button>
-      <a class="navbar-brand" href="./dashboard.php">Dashboard</a>
+      <a class="navbar-brand" href="./dashboard.php">Seneca</a>
       <!--<a class="navbar-brand" href="./settings.php">.$_SESSION['user_fname'].</a>-->
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="./jobboard.php">JOB BOARD</a></li>
-        <li><a href="#">EMPLOYEES</a></li>
-        <li><a href="#">CUSTOMERS</a></li>
-        <li><a href="#">JOB HISTORY</a></li>
-        <li><a href="./logout.php">LOGOUT</a></li>
+        <li><a onclick="openForm()">CREATE JOB</a></li>
+        <li><a href="https://cs.csubak.edu/~kgregory/4910/logout.php">LOGOUT</a></li>
       </ul>
     </div>
   </div>
 </nav>
 
+<div class="form-popup" id="createTicket">
+    <div class="form-header">
+        <h2 class="text-center">Create Job</h2>
+    </div>
+    <form action="createTicket.php" class="form-container" method="post">
+        <div class="row">
+            <div class="col-sm-12 bg-grey">
+
+                        <label for="problem">Type</label>   
+                        <select name="problem" required>
+                            <?php
+                            $prob = pg_query("SELECT pk_problem, type FROM problem;");
+                            while ($row_prob = pg_fetch_assoc($prob)) {
+                            ?>
+                            <option value=<?php echo $row_prob["pk_problem"]; ?>>
+                            <?php echo $row_prob["type"]; ?>
+                            </option> 
+                            <?php } ?>
+                        </select>
+
+                        <!-- make this location a selection element based off of the saved locations in the database for the customer -->
+                        <label for="location">Location</label>    
+                        <select name="location" required>
+                            <?php
+                            $cust = pg_query("SELECT address FROM locationview WHERE fk_customer = pk_customer;");
+                            while ($row_cust = pg_fetch_assoc($cust)) {
+                            ?>
+                            <option value=<?php echo $row_cust["pk_customer"]; ?>>
+                            <?php echo $row_cust["customername"]; ?>
+                            </option> 
+                            <?php } ?>
+                        </select>
+
+                        <label for="status">Status</label>   
+                        <select name="status">
+                            <option value="unassigned">Unassigned</option>
+                            <option value="assigned">Assigned</option>
+                            <option value="inprogress">In progress</option>
+                            <option value="reassigned">Reassigned</option>
+                            <option value="return">Will Return</option>
+                        </select>
+                        
+                        <label for="paymeth">Payment Method</label>   
+                        <select name="paymeth" required>
+                            <option value="unknown">Unknown</option>
+                            <option value="cash">Cash</option>
+                            <option value="charge">Charge</option>
+                            <option value="check">Check</option>
+                            <option value="card">Credit Card</option>
+                            <option value="estimate">Estimate</option>
+                            <option value="nocharge">No charge</option>
+                        </select>
+                        
+                        <label for="priority">Priority</label>    
+                        <select name="priority" required>
+                            <option value="normal">Normal</option>
+                            <option value="high">High</option>
+                            <option value="low">Low</option>
+                        </select>
+
+                        <!-- Implement Work order; if not entered then default to NULL -->
+                        <label for="workorder">Work Order</label>    
+                        <input type="text" name="workorder" placeholder="Enter workorder.."  required>
+
+
+                        <!-- Implement FROM (eta start) which includes date selector and time selector -->
+                        <label for="start">ETA Start</label>    
+                        <input type="time" name="start" placeholder="Enter ETA start.."  required>
+
+                        <!-- Implement TO (eta due) which includes date selector and time selector -->
+                        <label for="due">ETA End</label>    
+                        <input type="time" name="due" placeholder="Enter ETA end.."  required>
+                        
+
+                        <!-- Implement drop down for duration of job dd/hh/mm :: up down arrow to choose the number per time -->
+                        <label for="duration">Duration</label>    
+                        <input type="time" name="duration" placeholder="Enter duration.."  required>
+
+
+                        <label for="notes">Notes</label>    
+                        <input type="text" name="notes" placeholder="Enter notes.."  required>
+                        
+
+                        <!-- searches for technician and an add button to add an additional technician -->
+                        <label for="technician">Technician</label>    
+                        <select name="technician" required>
+                            <option value="unassigned">Unassigned</option>
+                            <?php
+                            $tech = pg_query("SELECT pk_employee, firstname, lastname FROM employeeview;");
+                            while ($row_tech = pg_fetch_assoc($tech)) {
+                            ?>
+                            <option value=<?php echo $row_tech["pk_employee"]; ?>>
+                            <?php echo $row_tech["lastname"].", ".$row_tech["firstname"].""; ?>
+                            </option> 
+                            <?php } ?>
+                        </select>
+
+                        <!-- searches for customer and if not found then there is an add button to quick add customer -->
+                        <label for="customer">Customer</label>    
+                        <select name="customer" required>
+                            <?php
+                            $cust = pg_query("SELECT pk_customer, customername FROM customerview;");
+                            while ($row_cust = pg_fetch_assoc($cust)) {
+                            ?>
+                            <option value=<?php echo $row_cust["pk_customer"]; ?>>
+                            <?php echo $row_cust["customername"]; ?>
+                            </option> 
+                            <?php } ?>
+                        </select>
+            </div>
+        </div>
+        <button type="submit" class="btn" name="insert">Submit</button>
+        <button type="button" class="btn cancel" onclick="closeForm()">Cancel</button>
+    </form>
+</div>
+
 <!-- Container (Dashboard Section) -->
 <div id="dashboard" class="container-fluid">
+  <div class="text-center" style="background-color: #f4511e; color: #fff; padding: 70px 25px; font-family: Montserrat, sans-serif;">
+      <h1>Dashboard</h1> 
+  </div>
   <div class="row">
-    <div class="col-sm-6">
-      <h2>About Me</h2>
-      <h5>Photo of me:</h5>
-      <div class="fakeimg">Fake Image</div>
-      <p>Some text about me in culpa qui officia deserunt mollit anim..</p>
-      <h3>Some Links</h3>
-      <p>Lorem ipsum dolor sit ame.</p>
-      <ul class="nav nav-pills flex-column">
-        <li class="nav-item">
-          <a class="nav-link active" href="#">Active</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#">Disabled</a>
-        </li>
-      </ul>
-      <hr class="d-sm-none">
+    <div class="col-sm-6 text-center" style="min-height: 300px;">
+      <a href="#"><h2>JOB STATISTICS</h2></a>
+      <i class="glyphicon glyphicon-stats logo"></i>
+      <p>Obtain graphical stats from all tickets in the system.</p>
     </div>
-    <div class="col-sm-6">
-      <h2>Login</h2>
-      <h5>Username</h5>
-      <div class="fakeimg">Fake Image</div>
-      <p>Some text..</p>
-      <p>Sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
-      <br>
-      <h2>TITLE HEADING</h2>
-      <h5>Title description, Sep 2, 2017</h5>
-      <div class="fakeimg">Fake Image</div>
-      <p>Some text..</p>
-      <p>Sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
+    <div class="col-sm-6 text-center" style="min-height: 300px;">
+      <a href="#"><h2>JOB STATISTICS</h2></a>
+      <i class="glyphicon glyphicon-stats logo"></i>
+      <p>Obtain graphical stats from all tickets in the system.</p>
+    </div>
+    <div class="col-sm-4 text-center" style="min-height: 300px;">
+      <a href="https://cs.csubak.edu/~aparker/Seneca/customers.php"><h2>CUSTOMER CENTER</h2></a>
+      <i class="glyphicon glyphicon-user logo"></i>
+      <p><a>Create</a>___<a>Modify</a>___<a>Delete</a></p>  
+      <p><b>Total Customers:</b></p>
+    </div>
+    <div class="col-sm-4 text-center" style="min-height: 300px;">
+      <a href="https://cs.csubak.edu/~kgregory/4910/jobboard.php"><h2>JOB BOARD</h2></a>
+      <i class="glyphicon glyphicon-list-alt logo"></i>
+      <p>View all tickets in the system.</p>
+    </div>
+    <div class="col-sm-4 text-center" style="min-height: 300px;">
+      <a href="https://cs.csubak.edu/~aparker/Seneca/employees.php"><h2>EMPLOYEE CENTER</h2></a>
+      <i class="glyphicon glyphicon-user logo"></i>
+      <p>Create, modify, and delete employees.</p>
+      <p><b>Total Employees:</b></p>
     </div>
   </div>
 </div>
+
 
 <footer class="container-fluid text-center">
   <a href="#myPage" title="To Top">
@@ -276,7 +391,7 @@ require_once('connect.php');
 </footer>
 
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
   // Add smooth scrolling to all links in navbar + footer link
   $(".navbar a, footer a[href='#myPage']").on('click', function(event) {
     // Make sure this.hash has a value before overriding default behavior
@@ -308,6 +423,14 @@ $(document).ready(function(){
     });
   });
 })
+
+function openForm() {
+    document.getElementById("createTicket").style.display = "block";
+}
+
+function closeForm(){
+    document.getElementById("createTicket").style.display = "none";
+}
 </script>
 
 </body>

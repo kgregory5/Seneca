@@ -2,15 +2,15 @@
 session_start();
 
 //Redirect if guest attempts to view page
-//if(!isset($_SESSION['active'])) {
-//    header("Location: ./home.php");
-//    exit();
-//}
-//if(isset($_SESSION['active'])) {
-//    unset($_SESSION);
-//    session_destroy(); // Destroy all data registered to a session
-//    $_SESSION = [];
-//}
+if(!isset($_SESSION['active'])) {
+    header("Location: https://cs.csubak.edu/~kgregory/4910/home.php");
+    exit();
+}
+if(isset($_SESSION['active'])) {
+    unset($_SESSION);
+    session_destroy(); // Destroy all data registered to a session
+    $_SESSION = [];
+}
 ?>
 
 <!DOCTYPE html>
@@ -179,7 +179,7 @@ session_start();
         // redirect after 5000 milliseconds
         $(document).ready(function () {
             window.setTimeout(function () {
-                location.href = "./home.php"; 
+                location.href = "https://cs.csubak.edu/~kgregory/4910/home.php"; 
             }, 5000);
         });
     </script>
