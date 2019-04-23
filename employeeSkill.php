@@ -15,6 +15,7 @@ if(!isset($_SESSION['active'])) {
   <title>Seneca | Job Board</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cs.csubak.edu/~kgregory/4910/rangeSlider.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
@@ -198,54 +199,30 @@ if(!isset($_SESSION['active'])) {
 
 <!-- Container (Dashboard Section) -->
 <div id="dashboard" class="container-fluid">
-
-  <div class="text-center" style="background-color: #f4511e; color: #fff; padding: 70px 25px; font-family: Montserrat, sans-serif;">
-    <h1>Job Board</h1> 
-  </div>
-  <div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12">
-        <div style="overflow-x: auto;">
-            <table style="width:100%;">
-                <tr class="bg-grey" style="border: 5px solid #ddd;">
-                    <th>Start</th>
-                    <th>Customer</th>
-                    <th>Address</th>
-                    <th>ZIP</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Techs</th>
-                    <th>Username</th>
-                    <th>Created</th>
-                    <th>Action</th>
-                </tr>
-<?php
-if(isset($_SESSION['active'])) { // if active user -> display job board
-    $result = pg_query("SELECT * FROM jobboardview");
-
-    while($row = pg_fetch_row($result)) {
-        $jobID = $row[0];
-        echo "<tr>";
-        echo "<td>".$row[1]."</td>";
-        echo "<td>".$row[2]."</td>";
-        echo "<td>".$row[3]."</td>";
-        echo "<td>".$row[4]."</td>";
-        echo "<td>".$row[5]."</td>";
-        echo "<td>".$row[6]."</td>";
-        echo "<td>".$row[7]."</td>";
-        echo "<td>".$row[8]."</td>";
-        echo "<td>".$row[9]."</td>";
-        echo "<td><a href=https://cs.csubak.edu/~kgregory/4910/jobInfo.php?info=".$jobID.">Info</a><br>";
-        echo "<a href=https://cs.csubak.edu/~kgregory/4910/jobAssign.php?assign=".$jobID.">Assign</a>";
-        echo "/<a href=https://cs.csubak.edu/~kgregory/4910/jobUnassign.php?unassign=".$jobID.">Unassign</a><br>";
-        echo "<a href=https://cs.csubak.edu/~kgregory/4910/deleteJob.php?delete=".$jobID.">Delete</a></td>";
-        echo "</tr>";
-    }
-}
-?>
-            </table>
+    <div class="text-center" style="background-color: #f4511e; color: #fff; padding: 70px 25px; font-family: Montserrat, sans-serif;">
+        <h1>Employee Skill</h1> 
+    </div><br>
+    <form action="https://cs.csubak.edu/~kgregory/4910/addSkill.php" class="form-container">
+        <!-- searches for technician -->
+        <label for="technician">Technician: </label>    
+        <select name="technician" onchange="getSkills(this.value)">
+            <option value="NULL">Choose...</option>
+            <?php
+                $tech = pg_query("SELECT pk_employee, firstname, lastname FROM employeeview;");
+                while ($row_tech = pg_fetch_assoc($tech)) {
+            ?>
+            <option value=<?php echo $row_tech["pk_employee"]; ?>>
+                <?php echo $row_tech["lastname"].", ".$row_tech["firstname"].""; ?>
+            </option>
+            <?php } ?>
+        </select>
+        <br><br>
+        <div id="displaySkills" name="displaySkills">
         </div>
-    </div>
-  </div>
+        <br><br>
+        <button type="button" class="btn cancel" style="float:left;" onclick="javascript:location.href='https://cs.csubak.edu/~kgregory/4910/dashboard.php'">Cancel</button>
+        <button type="submit" class="btn" style="float:right;">Submit</button>
+    </form>
 </div>
 
 <footer class="container-fluid text-center">
@@ -288,6 +265,25 @@ $(document).ready(function(){
     });
   });
 })
+    
+function getSkills(EMPLOYEE_ID) {
+    $.ajax({url:"https://cs.csubak.edu/~kgregory/4910/getSkill.php",data: {"EMPLOYEE_ID":EMPLOYEE_ID}}).done(function(data){ $("#displaySkills").html(data);});
+}
+
+/*var slider1 = document.getElementById("myRange1");
+var slider2 = document.getElementById("myRange2");
+var demo1 = document.getElementById("demo1");
+var demo2 = document.getElementById("demo2");
+demo1.innerHTML = slider1.value;
+demo2.innerHTML = slider2.value;
+
+// Update slider value
+slider1.oninput = function() {
+    demo1.innerHTML = this.value;
+}
+slider2.oninput = function() {
+    demo2.innerHTML = this.value;
+}*/
 </script>
 
 </body>

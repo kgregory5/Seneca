@@ -21,6 +21,8 @@ if(!isset($_SESSION['active'])) {
   <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://cs.csubak.edu/~kgregory/4910/grabLocation.js"></script>
   <style>
   body {
       font: 400 15px Lato, sans-serif;
@@ -219,7 +221,7 @@ if(!isset($_SESSION['active'])) {
         <span class="icon-bar"></span>                        
       </button>
       <a class="navbar-brand" href="./dashboard.php">Seneca</a>
-      <!--<a class="navbar-brand" href="./settings.php">.$_SESSION['user_fname'].</a>-->
+      <!--<a class="navbar-brand" href="./settings.php">.$_SESSION['user_id']./a>-->
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav navbar-right">
@@ -234,115 +236,123 @@ if(!isset($_SESSION['active'])) {
     <div class="form-header">
         <h2 class="text-center">Create Job</h2>
     </div>
-    <form action="createTicket.php" class="form-container" method="post">
+    <form action="https://cs.csubak.edu/~kgregory/4910/addJob.php" name="createTicket" class="form-container">
         <div class="row">
             <div class="col-sm-12 bg-grey">
-
-                        <label for="problem">Type</label>   
-                        <select name="problem" required>
+                <br>
+                <div class="col-sm-12 bg-grey">
+                    <div class="col-sm-6 bg-grey">
+                        <label for="customer">Customer <span style="color:red;">*</span></label>    
+                        <select id="customer" name="customer" onchange="getCustomerID(this.value)" required>
+                            <option value="NULL">Unassigned</option>
                             <?php
-                            $prob = pg_query("SELECT pk_problem, type FROM problem;");
-                            while ($row_prob = pg_fetch_assoc($prob)) {
+                                $cust = pg_query("SELECT pk_customer, customername FROM customerview;");
+                                while ($row_cust = pg_fetch_assoc($cust)) {
+                            ?>
+                            <option value=<?php echo $row_cust["pk_customer"]; ?>>
+                                <?php echo $row_cust["customername"]; ?>
+                            </option>
+                            <?php } ?>
+                        </select>
+                        <hr>
+                    </div>
+                    <div class="col-sm-6 bg-grey" id="locate" name="locate">
+                        <label for="location">Location <span style="color:red;">*</span></label>    
+                        <select id="location" name="location" required>
+                        </select>
+                        <hr>
+                    </div>
+                </div>
+                <div class="col-sm-12 bg-grey">
+                    <div class="col-sm-6 bg-grey">
+                        <?php
+                        $soonest = pg_query("SELECT soonest_available();");
+                        $soonestTime = pg_fetch_row($soonest);
+                        ?>
+                        <label for="due">Schedule Time</label>    
+                        <!-- <input type="datetime-local" name="due" min="2019-01-01T00:00" max="2019-12-31T23:59" placeholder="Scheduled time.."> -->
+                        <input type="datetime-local" name="due" value="<?php echo $soonestTime[0]; ?>">
+                        <hr>
+                    </div>
+                    <div class="col-sm-6 bg-grey">
+                        <label for="duration">Estimated Duration</label>    
+                        <input type="text" name="duration" value="01:00:00">
+                        <!-- <select id="duration" name="duration">
+                            <?php 
+                                /*for($hours = 0; $hours < 24; $hours++) {
+                                    for($mins = 0; $mins < 60; $mins+=30) {
+                                        echo '<option>'.str_pad($hours,2,'0',STR_PAD_LEFT).':'
+                                            .str_pad($mins,2,'0',STR_PAD_LEFT).'</option';
+                                    }
+                                }*/
+                            ?>
+                        </select> -->
+                        <hr>
+                    </div>
+                </div>
+                <div class="col-sm-12 bg-grey">
+                    <div class="col-sm-6 bg-grey">
+                        <label for="problem">Problem <span style="color:red;">*</span></label>   
+                        <select name="problem" required>
+                            <option value="">Unassigned</option>
+                            <?php
+                                $prob = pg_query("SELECT pk_problem, type FROM problem;");
+                                while ($row_prob = pg_fetch_assoc($prob)) {
                             ?>
                             <option value=<?php echo $row_prob["pk_problem"]; ?>>
-                            <?php echo $row_prob["type"]; ?>
+                                <?php echo $row_prob["type"]; ?>
                             </option> 
                             <?php } ?>
                         </select>
-
-                        <!-- make this location a selection element based off of the saved locations in the database for the customer -->
-                        <label for="location">Location</label>    
-                        <select name="location" required>
-                            <?php
-                            $cust = pg_query("SELECT address FROM locationview WHERE fk_customer = pk_customer;");
-                            while ($row_cust = pg_fetch_assoc($cust)) {
-                            ?>
-                            <option value=<?php echo $row_cust["pk_customer"]; ?>>
-                            <?php echo $row_cust["customername"]; ?>
-                            </option> 
-                            <?php } ?>
-                        </select>
-
-                        <label for="status">Status</label>   
-                        <select name="status">
-                            <option value="unassigned">Unassigned</option>
-                            <option value="assigned">Assigned</option>
-                            <option value="inprogress">In progress</option>
-                            <option value="reassigned">Reassigned</option>
-                            <option value="return">Will Return</option>
-                        </select>
-                        
+                        <hr>
+                    </div>
+                    <div class="col-sm-6 bg-grey">
                         <label for="paymeth">Payment Method</label>   
-                        <select name="paymeth" required>
-                            <option value="unknown">Unknown</option>
-                            <option value="cash">Cash</option>
-                            <option value="charge">Charge</option>
-                            <option value="check">Check</option>
-                            <option value="card">Credit Card</option>
-                            <option value="estimate">Estimate</option>
-                            <option value="nocharge">No charge</option>
+                        <select name="paymeth">
+                            <option value="">Unknown</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Charge">Charge</option>
+                            <option value="Check">Check</option>
+                            <option value="Card">Credit Card</option>
+                            <option value="Estimate">Estimate</option>
+                            <option value="Nocharge">No charge</option>
                         </select>
-                        
+                        <hr>
+                     </div>
+                </div>
+                <div class="col-sm-12 bg-grey">
+                    <div class="col-sm-6 bg-grey">
+                        <label for="workorder">Work Order</label>    
+                        <input type="text" name="workorder" placeholder="Workorder..">
+                        <hr>
+                    </div>
+                    <div class="col-sm-6 bg-grey">
+                        <label for="jobtot">Approval Amount</label>    
+                        <input type="text" name="jobtot" value="" placeholder="Job Amount..">
+                        <hr>
+                    </div>
+                </div>
+                <div class="col-sm-12 bg-grey">
+                    <div class="col-sm-6 bg-grey">
                         <label for="priority">Priority</label>    
                         <select name="priority" required>
-                            <option value="normal">Normal</option>
-                            <option value="high">High</option>
-                            <option value="low">Low</option>
+                            <option value="Normal">Normal</option>
+                            <option value="High">High</option>
+                            <option value="Low">Low</option>
                         </select>
-
-                        <!-- Implement Work order; if not entered then default to NULL -->
-                        <label for="workorder">Work Order</label>    
-                        <input type="text" name="workorder" placeholder="Enter workorder.."  required>
-
-
-                        <!-- Implement FROM (eta start) which includes date selector and time selector -->
-                        <label for="start">ETA Start</label>    
-                        <input type="time" name="start" placeholder="Enter ETA start.."  required>
-
-                        <!-- Implement TO (eta due) which includes date selector and time selector -->
-                        <label for="due">ETA End</label>    
-                        <input type="time" name="due" placeholder="Enter ETA end.."  required>
-                        
-
-                        <!-- Implement drop down for duration of job dd/hh/mm :: up down arrow to choose the number per time -->
-                        <label for="duration">Duration</label>    
-                        <input type="time" name="duration" placeholder="Enter duration.."  required>
-
-
-                        <label for="notes">Notes</label>    
-                        <input type="text" name="notes" placeholder="Enter notes.."  required>
-                        
-
-                        <!-- searches for technician and an add button to add an additional technician -->
-                        <label for="technician">Technician</label>    
-                        <select name="technician" required>
-                            <option value="unassigned">Unassigned</option>
-                            <?php
-                            $tech = pg_query("SELECT pk_employee, firstname, lastname FROM employeeview;");
-                            while ($row_tech = pg_fetch_assoc($tech)) {
-                            ?>
-                            <option value=<?php echo $row_tech["pk_employee"]; ?>>
-                            <?php echo $row_tech["lastname"].", ".$row_tech["firstname"].""; ?>
-                            </option> 
-                            <?php } ?>
-                        </select>
-
-                        <!-- searches for customer and if not found then there is an add button to quick add customer -->
-                        <label for="customer">Customer</label>    
-                        <select name="customer" required>
-                            <?php
-                            $cust = pg_query("SELECT pk_customer, customername FROM customerview;");
-                            while ($row_cust = pg_fetch_assoc($cust)) {
-                            ?>
-                            <option value=<?php echo $row_cust["pk_customer"]; ?>>
-                            <?php echo $row_cust["customername"]; ?>
-                            </option> 
-                            <?php } ?>
-                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-12 bg-grey">
+                    <hr>
+                    <label for="notes">Notes</label>    
+                    <input type="text" name="notes" placeholder="Notes..">
+                </div>
+                <div class="col-sm-12 bg-grey">
+                    <button type="submit" class="btn" name="insert">Submit</button>
+                    <button type="button" class="btn cancel" onclick="closeForm()">Cancel</button>
+                </div>
             </div>
         </div>
-        <button type="submit" class="btn" name="insert">Submit</button>
-        <button type="button" class="btn cancel" onclick="closeForm()">Cancel</button>
     </form>
 </div>
 
@@ -352,28 +362,29 @@ if(!isset($_SESSION['active'])) {
       <h1>Dashboard</h1> 
   </div>
   <div class="row">
+    <!-- <div class="col-sm-6 text-center" id="piechart1" style="min-height: 400px;">
+      <div id="piechart1"></div>
+    </div>
+    <div class="col-sm-6 text-center" style="min-height: 400px;">
+      <div id="piechart2"></div>
+    </div> -->
     <div class="col-sm-6 text-center" style="min-height: 300px;">
-      <a href="#"><h2>JOB STATISTICS</h2></a>
-      <i class="glyphicon glyphicon-stats logo"></i>
-      <p>Obtain graphical stats from all tickets in the system.</p>
-    </div>
-    <div class="col-sm-6 text-center" style="min-height: 300px;">
-      <a href="#"><h2>JOB STATISTICS</h2></a>
-      <i class="glyphicon glyphicon-stats logo"></i>
-      <p>Obtain graphical stats from all tickets in the system.</p>
-    </div>
-    <div class="col-sm-4 text-center" style="min-height: 300px;">
-      <a href="https://cs.csubak.edu/~aparker/Seneca/customers.php"><h2>CUSTOMER CENTER</h2></a>
-      <i class="glyphicon glyphicon-user logo"></i>
-      <p><a>Create</a>___<a>Modify</a>___<a>Delete</a></p>  
-      <p><b>Total Customers:</b></p>
-    </div>
-    <div class="col-sm-4 text-center" style="min-height: 300px;">
       <a href="https://cs.csubak.edu/~kgregory/4910/jobboard.php"><h2>JOB BOARD</h2></a>
       <i class="glyphicon glyphicon-list-alt logo"></i>
       <p>View all tickets in the system.</p>
     </div>
-    <div class="col-sm-4 text-center" style="min-height: 300px;">
+    <div class="col-sm-6 text-center" style="min-height: 300px;">
+      <a href="https://cs.csubak.edu/~aparker/Seneca/customers.php"><h2>CUSTOMER CENTER</h2></a>
+      <i class="glyphicon glyphicon-user logo"></i>
+      <p>Create, modify, and delete employees.</p>
+      <p><b>Total Customers:</b></p>
+    </div>
+    <div class="col-sm-6 text-center" style="min-height: 300px;">
+      <a href="https://cs.csubak.edu/~kgregory/4910/employeeSkill.php"><h2>EMPLOYEE SKILLS</h2></a>
+      <i class="glyphicon glyphicon-list-alt logo"></i>
+      <p>Add and update an employee's skills.</p>
+    </div>
+    <div class="col-sm-6 text-center" style="min-height: 300px;">
       <a href="https://cs.csubak.edu/~aparker/Seneca/employees.php"><h2>EMPLOYEE CENTER</h2></a>
       <i class="glyphicon glyphicon-user logo"></i>
       <p>Create, modify, and delete employees.</p>
@@ -422,14 +433,63 @@ $(document).ready(function() {
         }
     });
   });
-})
+});
 
 function openForm() {
     document.getElementById("createTicket").style.display = "block";
 }
 
-function closeForm(){
+function closeForm() {
     document.getElementById("createTicket").style.display = "none";
+}
+</script>
+<script type="text/javascript">
+//Load google charts
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawChart1);
+google.charts.setOnLoadCallback(drawChart2);
+
+//Draw the chart and set the chart values
+function drawChart1() {
+    var data = google.visualization.arrayToDataTable([
+        ['Job', 'Hours Per Day'],
+        ['Water Heater', 8],
+        ['Drain Clog', 2],
+        ['Gas Line Leak', 4],
+        ['Hydrojet', 2],
+        ['Water Line Leak', 8]
+    ]);
+
+    //Optional; add a title and set the width and height of the chart
+    var options = {'title':'Todays Job Types','width':400,'height':400};
+
+    //Display the chart inside the <div> element with id="piechart"
+    var chart = new google.visualization.PieChart(document.getElementById('piechart1'));
+    chart.draw(data, options);
+}
+function drawChart2() {
+    var data = google.visualization.arrayToDataTable([
+        ['Employee', 'Jobs Per Day'],
+        ['Geralt', 3],
+        ['Harry', 1],
+        ['Gordon', 4],
+        ['Solid', 2],
+        ['Motok', 3]
+    ]);
+
+    //Optional; add a title and set the width and height of the chart
+    var options = {'title':'Employee Jobs Today','width':400,'height':400};
+
+    //Display the chart inside the <div> element with id="piechart"
+    var chart = new google.visualization.PieChart(document.getElementById('piechart2'));
+    chart.draw(data, options);
+}
+</script>
+<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<script>
+function getCustomerID(CUSTOMER_ID) {
+    $.ajax({url:"https://cs.csubak.edu/~kgregory/4910/insertLocation.php",data: {"CUSTOMER_ID":CUSTOMER_ID}}).done(function(data){ $("select#location").html(data);});
+    //$.ajax({url:"https://cs.csubak.edu/~kgregory/4910/insertLocation.php",data: {"CUSTOMER_ID":CUSTOMER_ID}}).done(function(data){ $(console.log).html(data);});
 }
 </script>
 

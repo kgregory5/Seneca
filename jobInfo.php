@@ -7,6 +7,10 @@ if(!isset($_SESSION['active'])) {
     header("Location: https://cs.csubak.edu/~kgregory/4910/home.php"); 
     exit();
 }
+
+if (isset($_GET['info'])) {
+    $jobID = $_GET['info'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -49,8 +53,9 @@ if(!isset($_SESSION['active'])) {
   }  
   th {
       text-align: left;
-      border: 1px solid #ddd;
+      border: 5px solid #ddd; /* was 1 px */
       padding: 8px;
+      background-color: #f6f6f6;
   }
   td {
       text-align: left;
@@ -78,16 +83,6 @@ if(!isset($_SESSION['active'])) {
   .logo {
       color: #f4511e;
       font-size: 200px;
-  }
-  .thumbnail {
-      padding: 0 0 15px 0;
-      border: none;
-      border-radius: 0;
-  }
-  .thumbnail img {
-      width: 100%;
-      height: 100%;
-      margin-bottom: 10px;
   }
   .item h4 {
       font-size: 19px;
@@ -200,50 +195,133 @@ if(!isset($_SESSION['active'])) {
 <div id="dashboard" class="container-fluid">
 
   <div class="text-center" style="background-color: #f4511e; color: #fff; padding: 70px 25px; font-family: Montserrat, sans-serif;">
-    <h1>Job Board</h1> 
+    <h1>Viewing Job: <?php echo $jobID; ?></h1> 
   </div>
   <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12">
         <div style="overflow-x: auto;">
             <table style="width:100%;">
-                <tr class="bg-grey" style="border: 5px solid #ddd;">
-                    <th>Start</th>
-                    <th>Customer</th>
-                    <th>Address</th>
-                    <th>ZIP</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Techs</th>
-                    <th>Username</th>
-                    <th>Created</th>
-                    <th>Action</th>
-                </tr>
 <?php
 if(isset($_SESSION['active'])) { // if active user -> display job board
-    $result = pg_query("SELECT * FROM jobboardview");
+    $result = pg_query("SELECT * FROM fulljobview WHERE pk_job = $jobID");
 
+    //$i = 0;
+    //$labels = array("Type", "Address", "City", "State", "Zip Code", "Customer Name", "Status", "Pay Method", 
+    //    "Priority", "Work Order", "Invoice Number", "Job Total", "eta Start", "Due By", "est Duration",
+    //    "jNotes", "Customer Rating", "Techs", "wNotes", "Check in", "Check out", "Username", "Created"); 
+    //$name = array("type", "address", "city", "state", "zipCode", "customer", "status", "payMeth", 
+    //    "priority", "workOrder", "InvNum", "jobTot", "start", "due", "duration",
+    //    "jNotes", "rating", "technician", "wNotes", "checkIn", "checkOut", "username", "created"); 
     while($row = pg_fetch_row($result)) {
-        $jobID = $row[0];
+   /*     echo "<tr><th>";
+        echo $labels[$i];
+        echo "</th><td>";
+        echo "<input type='text' name='$name[1]' style='border:0px solid;width:100%;' value='$row[1]'>";
+        echo "</td></tr>";
+        $i++;
+    }*/
+        
         echo "<tr>";
-        echo "<td>".$row[1]."</td>";
-        echo "<td>".$row[2]."</td>";
-        echo "<td>".$row[3]."</td>";
-        echo "<td>".$row[4]."</td>";
-        echo "<td>".$row[5]."</td>";
-        echo "<td>".$row[6]."</td>";
-        echo "<td>".$row[7]."</td>";
-        echo "<td>".$row[8]."</td>";
-        echo "<td>".$row[9]."</td>";
-        echo "<td><a href=https://cs.csubak.edu/~kgregory/4910/jobInfo.php?info=".$jobID.">Info</a><br>";
-        echo "<a href=https://cs.csubak.edu/~kgregory/4910/jobAssign.php?assign=".$jobID.">Assign</a>";
-        echo "/<a href=https://cs.csubak.edu/~kgregory/4910/jobUnassign.php?unassign=".$jobID.">Unassign</a><br>";
-        echo "<a href=https://cs.csubak.edu/~kgregory/4910/deleteJob.php?delete=".$jobID.">Delete</a></td>";
+        echo "<th>Type</th>";
+        echo "<td><input type='text' name='type' style='border:0px solid;width:100%;' value='$row[1]'></td>";
         echo "</tr>";
+        echo "<tr>";
+        echo "<th>Address</th>";
+        echo "<td><input type='text' name='address' style='border:0px solid;width:100%;' value='$row[2]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>City</th>";
+        echo "<td><input type='text' name='city' style='border:0px solid;width:100%;' value='$row[3]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>State</th>";
+        echo "<td><input type='text' name='state' style='border:0px solid;width:100%;' value='$row[4]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Zip Code</th>";
+        echo "<td><input type='text' name='zipcode' style='border:0px solid;width:100%;' value='$row[5]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Customer Name</th>";
+        echo "<td><input type='text' name='customer' style='border:0px solid;width:100%;' value='$row[6]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Status</th>";
+        echo "<td><input type='text' name='status' style='border:0px solid;width:100%;' value='$row[7]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Pay Method</th>";
+        echo "<td><input type='text' name='paymeth' style='border:0px solid;width:100%;' value='$row[8]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Priority</th>";
+        echo "<td><input type='text' name='priority' style='border:0px solid;width:100%;' value='$row[9]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Work Order</th>";
+        echo "<td><input type='text' name='workorder' style='border:0px solid;width:100%;' value='$row[10]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Invoice Number</th>";
+        echo "<td><input type='text' name='invnum' style='border:0px solid;width:100%;' value='$row[11]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Job Total</th>";
+        echo "<td><input type='text' name='jobtot' style='border:0px solid;width:100%;' value='$row[12]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>eta Start</th>";
+        echo "<td><input type='text' name='start' style='border:0px solid;width:100%;' value='$row[13]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Due By</th>";
+        echo "<td><input type='text' name='due' style='border:0px solid;width:100%;' value='$row[14]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>est Duration</th>";
+        echo "<td><input type='text' name='duration' style='border:0px solid;width:100%;' value='$row[15]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>jNotes</th>";
+        echo "<td><input type='text' name='jnotes' style='border:0px solid;width:100%;' value='$row[16]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Customer Rating</th>";
+        echo "<td><input type='text' name='rating' style='border:0px solid;width:100%;' value='$row[17]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Techs</th>";
+        echo "<td><input type='text' name='technician' style='border:0px solid;width:100%;' value='$row[18]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>wNotes</th>";
+        echo "<td><input type='text' name='wnotes' style='border:0px solid;width:100%;' value='$row[19]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Check in</th>";
+        echo "<td><input type='text' name='checkin' style='border:0px solid;width:100%;' value='$row[20]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Check out</th>";
+        echo "<td><input type='text' name='checkout' style='border:0px solid;width:100%;' value='$row[21]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Username</th>";
+        echo "<td><input type='text' name='username' style='border:0px solid;width:100%;' value='$row[22]'></td>";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<th>Created</th>";
+        echo "<td><input type='text' name='created' style='border:0px solid;width:100%;' value='$row[23]'></td>";
+        echo "</tr>";
+
     }
 }
 ?>
             </table>
-        </div>
+        </div><br>
+        <button type="button" onclick="javascript:location.href='https://cs.csubak.edu/~kgregory/4910/jobAssign.php?assign=<?php echo $jobID; ?>'">Assign</button>
+        <button type="button">Edit</button>
+        <button type="button" style="float:right;" onclick="javascript:location.href='https://cs.csubak.edu/~kgregory/4910/deleteJob.php?delete=<?php echo $jobID; ?>'">Delete</button>
     </div>
   </div>
 </div>

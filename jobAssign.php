@@ -7,6 +7,10 @@ if(!isset($_SESSION['active'])) {
     header("Location: https://cs.csubak.edu/~kgregory/4910/home.php"); 
     exit();
 }
+
+if (isset($_GET['assign'])) {
+    $jobID = $_GET['assign'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -15,6 +19,7 @@ if(!isset($_SESSION['active'])) {
   <title>Seneca | Job Board</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cs.csubak.edu/~kgregory/4910/rangeSlider.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
@@ -126,7 +131,7 @@ if(!isset($_SESSION['active'])) {
       margin-bottom: 20px;
       color: #f4511e;
   }
-  .slideanim {visibility:hidden;}
+  .slideanim { visibility: hidden; }
   .slide {
       animation-name: slide;
       -webkit-animation-name: slide;
@@ -198,54 +203,48 @@ if(!isset($_SESSION['active'])) {
 
 <!-- Container (Dashboard Section) -->
 <div id="dashboard" class="container-fluid">
-
-  <div class="text-center" style="background-color: #f4511e; color: #fff; padding: 70px 25px; font-family: Montserrat, sans-serif;">
-    <h1>Job Board</h1> 
-  </div>
-  <div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12">
-        <div style="overflow-x: auto;">
-            <table style="width:100%;">
-                <tr class="bg-grey" style="border: 5px solid #ddd;">
-                    <th>Start</th>
-                    <th>Customer</th>
-                    <th>Address</th>
-                    <th>ZIP</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Techs</th>
-                    <th>Username</th>
-                    <th>Created</th>
-                    <th>Action</th>
-                </tr>
-<?php
-if(isset($_SESSION['active'])) { // if active user -> display job board
-    $result = pg_query("SELECT * FROM jobboardview");
-
-    while($row = pg_fetch_row($result)) {
-        $jobID = $row[0];
-        echo "<tr>";
-        echo "<td>".$row[1]."</td>";
-        echo "<td>".$row[2]."</td>";
-        echo "<td>".$row[3]."</td>";
-        echo "<td>".$row[4]."</td>";
-        echo "<td>".$row[5]."</td>";
-        echo "<td>".$row[6]."</td>";
-        echo "<td>".$row[7]."</td>";
-        echo "<td>".$row[8]."</td>";
-        echo "<td>".$row[9]."</td>";
-        echo "<td><a href=https://cs.csubak.edu/~kgregory/4910/jobInfo.php?info=".$jobID.">Info</a><br>";
-        echo "<a href=https://cs.csubak.edu/~kgregory/4910/jobAssign.php?assign=".$jobID.">Assign</a>";
-        echo "/<a href=https://cs.csubak.edu/~kgregory/4910/jobUnassign.php?unassign=".$jobID.">Unassign</a><br>";
-        echo "<a href=https://cs.csubak.edu/~kgregory/4910/deleteJob.php?delete=".$jobID.">Delete</a></td>";
-        echo "</tr>";
-    }
-}
-?>
-            </table>
-        </div>
+    <form action="https://cs.csubak.edu/~kgregory/4910/assignEmployee.php" class="form-container">
+    <div class="text-center" style="background-color: #f4511e; color: #fff; padding: 70px 25px; font-family: Montserrat, sans-serif;">
+    <h1>Assign Technician To Job #<?php echo $jobID; ?></h1> 
+    </div><br>
+    <!-- searches for technician -->
+    <label for="technician">Technician: </label>    
+    <select name="technician">
+        <option value="NULL">Choose...</option>
+        <?php
+        $tech = pg_query("SELECT pk_employee, firstname, lastname FROM employeeview;");
+        while ($row_tech = pg_fetch_assoc($tech)) {
+        ?>
+        <option value=<?php echo $row_tech["pk_employee"]; ?>>
+            <?php echo $row_tech["lastname"].", ".$row_tech["firstname"].""; ?>
+        </option>
+        <?php } ?>
+    </select>
+    <div style="float:right;">
+        <button type="button" onclick="techSuggestion()">Click for Suggested</button><br>
+        <!-- <label for="suggested">Suggested: </label> -->
+        <label><u>Suggested</u>: <span id="suggested" name="suggested"></span></label>    
+        <!-- <div id="suggested" name="suggested"></div> -->
     </div>
-  </div>
+    <br><br>
+    <div class="row">
+        <div class="col-lg-1 col-md-1 col-sm-1">
+            <p>Location: <br><span id="demo1"></span></p>
+        </div>
+        <div class="col-lg-10 col-md-10 col-sm-10">
+            <br><input type="range" min="0" max="100" value="50" class="slider" id="myRange">
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1">
+            <p>Skill: <br><span id="demo2"></span></p>
+        </div>
+    </div><br><br>
+    <input type="hidden" name="job_ID" value="<?php echo $jobID; ?>">
+    <button type="button" style="float:left;" onclick="javascript:location.href='https://cs.csubak.edu/~kgregory/4910/jobboard.php'">Cancel</button>
+    <button type="submit" style="float:right;">Submit</button>
+    </form>
+</div>
+
+<div id="testing" name="testing">
 </div>
 
 <footer class="container-fluid text-center">
@@ -287,8 +286,30 @@ $(document).ready(function(){
         }
     });
   });
-})
-</script>
+})    
 
+function techSuggestion() {
+    var jID = <?php echo $jobID; ?>;
+    var w1 = document.getElementById("demo1").innerHTML;
+    var w2 = document.getElementById("demo2").innerHTML;
+    //document.getElementById("testing").innerHTML = w1;
+
+    $.ajax({url:"https://cs.csubak.edu/~kgregory/4910/techSuggestion.php",data: {"jID":jID,"w1":w1,"w2":w2}}).done(function(data){ $("#suggested").html(data); });
+
+    //document.getElementById("technician").innerHTML = document.getElementById("suggested").innerHTML;
+}
+
+var slider = document.getElementById("myRange");
+var demo1 = document.getElementById("demo1");
+var demo2 = document.getElementById("demo2");
+demo1.innerHTML = slider.value;
+demo2.innerHTML = slider.value;
+
+// Update slider value
+slider.oninput = function() {
+    demo1.innerHTML = this.value;
+    demo2.innerHTML = 100-this.value;
+}
+</script>
 </body>
 </html>
